@@ -1,56 +1,65 @@
-def listar_posts(lista):
+from blog.modelos import Autor, Post
+
+
+def mostrar_resultados(posts, titulo_seccion):
     print()
-    print("--- TODOS LOS POSTS ---")
+    print(titulo_seccion)
 
-    for post in lista:
-        titulo = post.get("titulo", "Sin titulo")
-        autor = post.get("autor", {})
-        nombre_autor = autor.get("nombre", "Autor desconocido")
-        estado = post.get("estado", "Sin estado")
+    if len(posts) == 0:
+        print("No se encontraron resultados.")
+        return
 
+    for post in posts:
         print()
-        print("Titulo:", titulo)
-        print("Autor:", nombre_autor)
-        print("Estado:", estado)
+        print("Titulo:", post.titulo)
+        print("Autor:", post.autor.nombre)
+        print("Estado:", post.estado)
 
 
-def buscar_por_titulo(lista, termino):
-    encontrado = False
+def pedir_texto(mensaje):
+    texto = input(mensaje).strip()
 
+    while texto == "":
+        print("Este campo no puede quedar vacio.")
+        texto = input(mensaje).strip()
+
+    return texto
+
+
+def crear_post_desde_consola(blog):
     print()
-    print("--- RESULTADOS ---")
+    print("--- CREAR NUEVO POST ---")
 
-    for post in lista:
-        titulo = post.get("titulo", "")
+    titulo = pedir_texto("Titulo: ")
+    contenido = pedir_texto("Contenido: ")
+    nombre_autor = pedir_texto("Nombre del autor: ")
+    bio_autor = pedir_texto("Bio corta del autor: ")
 
-        if termino.lower() in titulo.lower():
-            print()
-            print("Titulo:", titulo)
-            print("Autor:", post.get("autor", {}).get("nombre", "Autor desconocido"))
-            print("Estado:", post.get("estado", "Sin estado"))
-            encontrado = True
+    tags_texto = pedir_texto("Tags separados por coma: ")
+    tags = []
 
-    if encontrado == False:
-        print("No se encontraron posts con ese titulo.")
+    for tag in tags_texto.split(","):
+        tag_limpio = tag.strip()
 
+        if tag_limpio != "":
+            tags.append(tag_limpio)
 
-def filtrar_por_tag(lista, tag):
-    encontrado = False
+    estado = pedir_texto("Estado (borrador/publicado/archivado): ").lower()
 
-    print()
-    print("--- RESULTADOS POR TAG ---")
+    while estado not in ("borrador", "publicado", "archivado"):
+        print("El estado ingresado no es valido.")
+        estado = pedir_texto("Estado (borrador/publicado/archivado): ").lower()
 
-    for post in lista:
-        tags = post.get("tags", [])
+    autor = Autor(nombre_autor, bio_autor)
 
-        for etiqueta in tags:
-            if tag.lower() == etiqueta.lower():
-                print()
-                print("Titulo:", post.get("titulo", "Sin titulo"))
-                print("Autor:", post.get("autor", {}).get("nombre", "Autor desconocido"))
-                print("Estado:", post.get("estado", "Sin estado"))
-                encontrado = True
-                break
+    nuevo_post = Post(
+        blog.siguiente_id(),
+        titulo,
+        contenido,
+        autor,
+        tags,
+        estado
+    )
 
-    if encontrado == False:
-        print("No se encontraron posts con ese tag.")
+    blog.agregar_post(nuevo_post)
+    print("El post fue creado correctamente.")
