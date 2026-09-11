@@ -1,4 +1,4 @@
-# Sistema de Blog Modular en Python
+# Sistema de Blog con POO y JSON
 
 ## Autor
 
@@ -6,96 +6,137 @@ Federico Zangaro
 
 ## Descripcion
 
-Este proyecto es la continuacion del sistema de blog que fui haciendo en los modulos anteriores.
+Este proyecto es la continuacion del blog por consola que fui desarrollando en las entregas anteriores de Python.
 
-En esta entrega el objetivo fue dejar de tener todo el codigo dentro de un solo archivo y separarlo en distintos modulos. La idea es que cada archivo tenga una responsabilidad clara y que `main.py` se encargue solamente de coordinar el programa.
+En esta preentrega agregue Programacion Orientada a Objetos. Los autores, los posts y el blog ahora se representan con clases y objetos.
 
-El sistema sigue funcionando por consola y permite ver todos los posts, buscar por titulo, filtrar por tag, validar la estructura de los posts y salir del programa.
+Tambien agregue persistencia con JSON. Los posts se cargan desde `posts.json` cuando inicia el programa y se pueden volver a guardar para que la informacion no se pierda al cerrar el programa.
 
 ## Estructura del proyecto
 
 ```text
-blog_consola/
+preentrega-6-blog/
 |
 |-- main.py
 |-- README.md
+|-- posts.json
 |
 `-- blog/
     |-- __init__.py
     |-- datos.py
     |-- menu.py
+    |-- modelos.py
     |-- operaciones.py
     `-- validaciones.py
 ```
 
-## Que hace cada archivo
+## Clases principales
 
-### main.py
+### Autor
 
-Es el archivo principal. Importa los datos y funciones de los otros modulos, muestra el flujo del programa y controla las opciones elegidas por el usuario.
+Representa a la persona que escribe un post.
 
-### blog/__init__.py
+Tiene datos como:
 
-Permite que Python reconozca la carpeta `blog` como un paquete.
+- nombre
+- bio
+- especialidad
+- redes sociales
 
-### blog/datos.py
+Tambien tiene el metodo `a_diccionario()` para poder convertir el objeto a un formato que JSON pueda guardar.
 
-Contiene los datos principales del blog:
+### Post
 
-- perfil del autor
-- estados posibles
-- etiquetas
-- lista de posts
+Representa una publicacion del blog.
 
-El autor se mantiene como un diccionario anidado dentro de cada post.
+Tiene:
 
-### blog/menu.py
+- id
+- titulo
+- contenido
+- autor
+- tags
+- estado
 
-Contiene la funcion que muestra el menu y pide una opcion al usuario.
+El atributo `autor` guarda un objeto de la clase `Autor`.
 
-Tambien usa `try-except` para evitar que el programa se cierre si se ingresa una letra en lugar de un numero.
+Tambien tiene el metodo `a_diccionario()` para convertir el post a un diccionario antes de guardarlo en JSON.
 
-### blog/operaciones.py
+### Blog
 
-Contiene las funciones que permiten:
+La clase `Blog` guarda la lista de objetos `Post` y centraliza las operaciones principales.
+
+Permite:
 
 - listar posts
 - buscar por titulo
 - filtrar por tag
+- agregar posts
+- obtener los posts cargados
+- generar el siguiente id
 
-Las busquedas usan `lower()` para ignorar mayusculas y minusculas.
+Las busquedas por titulo y tag usan `lower()` para ignorar mayusculas y minusculas.
 
-### blog/validaciones.py
+## Persistencia con JSON
 
-Contiene la funcion que revisa que cada post tenga los datos necesarios y que esos datos tengan el formato esperado.
+El archivo `blog/datos.py` se encarga de cargar y guardar la informacion.
 
-## Como ejecutar el programa
+Al iniciar el programa, la funcion `cargar_posts()` lee `posts.json`. Los diccionarios leidos se convierten nuevamente en objetos `Autor` y `Post`.
 
-Primero hay que abrir una terminal en la carpeta donde se encuentra `main.py`.
+Cuando se guardan los datos, cada objeto `Post` se convierte primero a diccionario. Luego se usa el modulo `json` de Python para escribir la lista en `posts.json`.
 
-Despues ejecutar:
+El programa tambien maneja casos donde el archivo no existe, esta vacio o contiene JSON invalido.
 
-```bash
-python main.py
-```
+## Menu del programa
 
-Al iniciar aparece este menu:
+El programa permite usar estas opciones:
 
 ```text
 --- MENU DEL BLOG ---
 1. Ver todos los posts
 2. Buscar por titulo
 3. Filtrar por tag
-4. Validar posts
-5. Salir
+4. Crear nuevo post
+5. Validar posts
+6. Guardar posts en JSON
+7. Salir
 ```
 
-## Explicacion corta del trabajo
+Al crear un post se piden los datos por consola, se crea un objeto `Autor`, luego un objeto `Post` y finalmente se agrega a la instancia de `Blog`.
 
-En esta entrega tome el sistema de blog que ya habia hecho y lo separe en varios archivos.
+## Como ejecutar el programa
 
-Antes tenia los datos, el menu, las busquedas y las validaciones en el mismo archivo. Ahora cada parte esta ubicada en un modulo diferente dentro de la carpeta `blog`.
+Abrir una terminal en la carpeta donde esta `main.py` y ejecutar:
 
-Use imports en `main.py` para conectar todos los archivos sin copiar las funciones. Tambien mantuve el autor como diccionario dentro de cada post y conserve las busquedas con `lower()` para que no importe si se escribe con mayusculas o minusculas.
+```bash
+python main.py
+```
 
-Con esta organizacion el programa hace practicamente lo mismo que antes, pero el codigo queda mucho mas ordenado y resulta mas facil encontrar cada parte.
+## Manejo de errores
+
+El proyecto controla algunos errores basicos para evitar que el programa se cierre inesperadamente:
+
+- opcion del menu que no es un numero
+- campos vacios al crear posts
+- estado de post incorrecto
+- archivo `posts.json` inexistente
+- archivo JSON vacio
+- contenido JSON invalido
+- datos incompletos al reconstruir objetos
+
+## Cambios respecto a la entrega anterior
+
+En la entrega anterior los posts y autores se manejaban principalmente con diccionarios y las operaciones estaban realizadas con funciones.
+
+En esta entrega:
+
+- se agrego `blog/modelos.py`
+- se crearon las clases `Autor`, `Post` y `Blog`
+- el autor de cada post ahora es un objeto `Autor`
+- el blog trabaja con una lista de objetos `Post`
+- se agrego el archivo `posts.json`
+- se agrego carga y guardado de datos con JSON
+- el menu ahora permite crear nuevos posts y guardarlos
+- `main.py` crea una instancia de `Blog` y usa sus metodos
+
+La idea fue mantener el proyecto simple, pero aplicar los conceptos nuevos de clases, objetos, metodos y persistencia.
